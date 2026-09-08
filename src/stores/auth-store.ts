@@ -14,6 +14,9 @@ interface OrgInfo {
   role: string;
   // 'ALL' for OWNER/ADMIN. Array of channel IDs for AGENT (deny-by-default).
   accessibleChannelIds: 'ALL' | string[];
+  // White-label: marca por organização.
+  logoUrl?: string | null;
+  primaryColor?: string | null;
 }
 
 interface AuthState {
@@ -23,6 +26,10 @@ interface AuthState {
   setAuth: (user: AuthUser, orgs: OrgInfo[]) => void;
   setActiveOrg: (orgId: string) => void;
   applyChannelPermissionUpdate: (channelId: string, granted: boolean) => void;
+  setOrgBranding: (
+    orgId: string,
+    branding: { logoUrl?: string | null; primaryColor?: string | null },
+  ) => void;
   logout: () => void;
 }
 
@@ -55,6 +62,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         else set.delete(channelId);
         return { ...org, accessibleChannelIds: [...set] };
       }),
+    }));
+  },
+
+  setOrgBranding: (orgId, branding) => {
+    set((state) => ({
+      organizations: state.organizations.map((org) =>
+        org.id === orgId ? { ...org, ...branding } : org,
+      ),
     }));
   },
 

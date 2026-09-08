@@ -87,6 +87,14 @@ export function AppSidebar() {
           <InboxTree />
           <PipelinesTree />
           <JarvisTree />
+        </SidebarSection>
+
+        <div
+          aria-hidden
+          className="my-1 border-t border-zinc-950/5 dark:border-white/5"
+        />
+
+        <SidebarSection>
           {navItems.map((item) => (
             <SidebarItem key={item.href} href={item.href}>
               <item.icon className="size-5" />

@@ -105,12 +105,12 @@ export function SidebarLayout({
         onClick={toggleCollapsed}
         aria-label={collapsed ? "Abrir menu" : "Recolher menu"}
         title={collapsed ? "Abrir menu" : "Recolher menu"}
-        className={`group fixed bottom-4 z-30 hidden h-7 w-5 items-center justify-center rounded-r-md bg-white text-zinc-400 opacity-50 ring-1 ring-zinc-950/5 transition-all duration-200 ease-in-out hover:bg-zinc-50 hover:text-zinc-900 hover:opacity-100 dark:bg-zinc-900 dark:text-zinc-500 dark:ring-white/10 dark:hover:bg-zinc-800 dark:hover:text-white lg:flex ${
+        className={`group fixed top-1/2 z-30 hidden h-12 w-6 -translate-y-1/2 items-center justify-center rounded-r-lg border border-l-0 border-zinc-200 bg-white text-zinc-500 shadow-sm transition-all duration-200 ease-in-out outline-none hover:w-7 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:ring-2 focus-visible:ring-primary dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white lg:flex ${
           collapsed ? "left-0" : "left-64"
         }`}
       >
         <ChevronLeft
-          className={`size-3.5 transition-transform duration-200 ${
+          className={`size-4 transition-transform duration-200 ${
             collapsed ? "rotate-180" : ""
           }`}
         />

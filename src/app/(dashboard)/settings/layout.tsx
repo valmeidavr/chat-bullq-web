@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Radio, Users, Tags, Bell, Building2, KeyRound, Sparkles, BookUser, Layers, Palette } from 'lucide-react';
+import { Radio, Users, Tags, Bell, Building2, KeyRound, Sparkles, BookUser, Layers, Palette, MessageSquareText } from 'lucide-react';
 
 const tabs = [
   { href: '/settings/channels', label: 'Canais', icon: Radio },
+  { href: '/settings/templates', label: 'Templates', icon: MessageSquareText },
   { href: '/settings/segments', label: 'Segmentos', icon: Layers },
   { href: '/settings/general', label: 'Geral', icon: Building2 },
   { href: '/settings/branding', label: 'Marca', icon: Palette },

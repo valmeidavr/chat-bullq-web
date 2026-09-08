@@ -71,11 +71,40 @@ export const EndNode = memo(({ selected }: NodeProps) => (
 ));
 EndNode.displayName = 'EndNode';
 
+export const QuestionNode = memo(({ data, selected }: NodeProps) => (
+  <BaseNode label="Pergunta" icon="❓" color="bg-cyan-500" selected={selected}>
+    <p className="line-clamp-2">{(data as any).question || 'Pergunta ao cliente...'}</p>
+    {(data as any).variable && <p className="mt-1 opacity-50">→ {(data as any).variable}</p>}
+  </BaseNode>
+));
+QuestionNode.displayName = 'QuestionNode';
+
+export const HttpRequestNode = memo(({ data, selected }: NodeProps) => (
+  <BaseNode label="Requisição API" icon="🌐" color="bg-teal-500" selected={selected} outputCount={2}>
+    <p className="truncate"><b>{(data as any).method || 'GET'}</b> {(data as any).url || 'https://...'}</p>
+    <div className="mt-1 flex gap-2 text-[10px]">
+      <span className="rounded bg-green-100 px-1 text-green-700">sucesso ↓</span>
+      <span className="rounded bg-red-100 px-1 text-red-700">erro ↓</span>
+    </div>
+  </BaseNode>
+));
+HttpRequestNode.displayName = 'HttpRequestNode';
+
+export const AiNode = memo(({ data, selected }: NodeProps) => (
+  <BaseNode label="IA" icon="🤖" color="bg-fuchsia-500" selected={selected}>
+    <p className="line-clamp-2">{(data as any).prompt || 'Prompt de IA...'}</p>
+  </BaseNode>
+));
+AiNode.displayName = 'AiNode';
+
 export const nodeTypes = {
   START: StartNode,
   MESSAGE: MessageNode,
   MENU: MenuNode,
+  QUESTION: QuestionNode,
   CONDITION: ConditionNode,
+  HTTP_REQUEST: HttpRequestNode,
+  AI: AiNode,
   WAIT: WaitNode,
   TRANSFER: TransferNode,
   END_FLOW: EndNode,

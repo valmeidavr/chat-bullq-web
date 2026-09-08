@@ -44,7 +44,10 @@ function flowNodesToReactFlow(nodes: ChatbotNode[]): { nodes: Node[]; edges: Edg
         id: `${n.id}-${e.targetNodeId}-${i}`,
         source: n.id,
         target: e.targetNodeId,
-        sourceHandle: n.type === 'MENU' || n.type === 'CONDITION' ? `output-${i}` : 'output-0',
+        sourceHandle:
+          n.type === 'MENU' || n.type === 'CONDITION' || n.type === 'HTTP_REQUEST'
+            ? `output-${i}`
+            : 'output-0',
         label: e.condition || undefined,
         animated: true,
         style: { strokeWidth: 2 },
@@ -102,6 +105,9 @@ export function FlowEditor({ flow }: FlowEditorProps) {
     if (type === 'MENU') { defaultData.title = ''; defaultData.options = [{ label: 'Opção 1', value: 'opt_1' }]; }
     if (type === 'CONDITION') { defaultData.variable = ''; defaultData.operator = 'equals'; defaultData.value = ''; }
     if (type === 'WAIT') { defaultData.prompt = ''; defaultData.saveAs = 'lastInput'; }
+    if (type === 'QUESTION') { defaultData.question = ''; defaultData.variable = 'resposta'; }
+    if (type === 'HTTP_REQUEST') { defaultData.method = 'GET'; defaultData.url = ''; defaultData.saveAs = 'apiResponse'; defaultData.auth = { type: 'none' }; }
+    if (type === 'AI') { defaultData.prompt = ''; defaultData.model = 'openai/gpt-4o-mini'; defaultData.saveAs = 'aiResponse'; defaultData.sendAsMessage = true; }
     if (type === 'TRANSFER') defaultData.message = 'Transferindo para um atendente...';
 
     const newNode: Node = {

@@ -118,11 +118,106 @@ export function NodePropertiesPanel({ node, onUpdate, onDelete, onClose }: NodeP
           </>
         )}
 
+        {node.type === 'QUESTION' && (
+          <>
+            <div>
+              <label className={labelCls}>Pergunta</label>
+              <textarea className={`${inputCls} min-h-[70px] resize-y`} value={data.question || ''} onChange={(e) => update('question', e.target.value)} placeholder="Qual o seu nome?" />
+            </div>
+            <div>
+              <label className={labelCls}>Salvar resposta em</label>
+              <input className={inputCls} value={data.variable || ''} onChange={(e) => update('variable', e.target.value)} placeholder="nome" />
+            </div>
+          </>
+        )}
+
         {node.type === 'TRANSFER' && (
           <div>
             <label className={labelCls}>Mensagem de transferência</label>
             <input className={inputCls} value={data.message || ''} onChange={(e) => update('message', e.target.value)} placeholder="Transferindo para um atendente..." />
           </div>
+        )}
+
+        {node.type === 'HTTP_REQUEST' && (
+          <>
+            <div>
+              <label className={labelCls}>Método</label>
+              <select className={inputCls} value={data.method || 'GET'} onChange={(e) => update('method', e.target.value)}>
+                <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>URL</label>
+              <input className={inputCls} value={data.url || ''} onChange={(e) => update('url', e.target.value)} placeholder="https://api.exemplo.com/clientes/{{telefone}}" />
+            </div>
+            <div>
+              <label className={labelCls}>Autenticação</label>
+              <select className={inputCls} value={(data.auth?.type) || 'none'} onChange={(e) => update('auth', { ...(data.auth || {}), type: e.target.value })}>
+                <option value="none">Nenhuma</option>
+                <option value="bearer">Bearer token</option>
+                <option value="basic">Basic (usuário/senha)</option>
+                <option value="apiKey">API key (header)</option>
+              </select>
+            </div>
+            {data.auth?.type === 'bearer' && (
+              <input className={inputCls} value={data.auth?.token || ''} onChange={(e) => update('auth', { ...(data.auth || {}), token: e.target.value })} placeholder="Token (aceita {{var}})" />
+            )}
+            {data.auth?.type === 'basic' && (
+              <div className="flex gap-1">
+                <input className={inputCls} value={data.auth?.username || ''} onChange={(e) => update('auth', { ...(data.auth || {}), username: e.target.value })} placeholder="usuário" />
+                <input className={inputCls} value={data.auth?.password || ''} onChange={(e) => update('auth', { ...(data.auth || {}), password: e.target.value })} placeholder="senha" />
+              </div>
+            )}
+            {data.auth?.type === 'apiKey' && (
+              <div className="flex gap-1">
+                <input className={inputCls} value={data.auth?.headerName || ''} onChange={(e) => update('auth', { ...(data.auth || {}), headerName: e.target.value })} placeholder="X-API-Key" />
+                <input className={inputCls} value={data.auth?.headerValue || ''} onChange={(e) => update('auth', { ...(data.auth || {}), headerValue: e.target.value })} placeholder="valor" />
+              </div>
+            )}
+            {data.method && data.method !== 'GET' && (
+              <div>
+                <label className={labelCls}>Corpo (JSON)</label>
+                <textarea className={`${inputCls} min-h-[70px] resize-y font-mono text-xs`} value={data.body || ''} onChange={(e) => update('body', e.target.value)} placeholder='{"nome": "{{nome}}"}' />
+              </div>
+            )}
+            <div>
+              <label className={labelCls}>Salvar resposta em</label>
+              <input className={inputCls} value={data.saveAs || ''} onChange={(e) => update('saveAs', e.target.value)} placeholder="apiResponse" />
+            </div>
+            <div>
+              <label className={labelCls}>Caminho da resposta (opcional)</label>
+              <input className={inputCls} value={data.responsePath || ''} onChange={(e) => update('responsePath', e.target.value)} placeholder="data.cliente.nome" />
+            </div>
+            <p className="text-[10px] text-zinc-400">Saídas: <b>sucesso</b> (2xx) e <b>erro</b>. Ligue cada uma ao próximo nó.</p>
+          </>
+        )}
+
+        {node.type === 'AI' && (
+          <>
+            <div>
+              <label className={labelCls}>Prompt</label>
+              <textarea className={`${inputCls} min-h-[80px] resize-y`} value={data.prompt || ''} onChange={(e) => update('prompt', e.target.value)} placeholder="Responda a dúvida do cliente: {{lastInput}}" />
+            </div>
+            <div>
+              <label className={labelCls}>Instrução do sistema (opcional)</label>
+              <textarea className={`${inputCls} min-h-[60px] resize-y`} value={data.system || ''} onChange={(e) => update('system', e.target.value)} placeholder="Você é o atendente da AAP-VR..." />
+            </div>
+            <div>
+              <label className={labelCls}>Modelo</label>
+              <select className={inputCls} value={data.model || 'openai/gpt-4o-mini'} onChange={(e) => update('model', e.target.value)}>
+                <option value="openai/gpt-4o-mini">gpt-4o-mini (rápido/barato)</option>
+                <option value="openai/gpt-4o">gpt-4o (melhor)</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>Salvar resposta em</label>
+              <input className={inputCls} value={data.saveAs || ''} onChange={(e) => update('saveAs', e.target.value)} placeholder="aiResponse" />
+            </div>
+            <label className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
+              <input type="checkbox" checked={data.sendAsMessage !== false} onChange={(e) => update('sendAsMessage', e.target.checked)} />
+              Enviar a resposta ao cliente
+            </label>
+          </>
         )}
 
         {node.type !== 'START' && node.type !== 'END_FLOW' && (

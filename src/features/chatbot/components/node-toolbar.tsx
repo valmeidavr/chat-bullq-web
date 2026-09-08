@@ -3,8 +3,10 @@
 const nodeTemplates = [
   { type: 'MESSAGE', label: 'Mensagem', icon: '💬', color: 'bg-blue-500' },
   { type: 'MENU', label: 'Menu', icon: '📋', color: 'bg-violet-500' },
+  { type: 'QUESTION', label: 'Pergunta', icon: '❓', color: 'bg-cyan-500' },
   { type: 'CONDITION', label: 'Condição', icon: '🔀', color: 'bg-amber-500' },
-  { type: 'WAIT', label: 'Aguardar', icon: '⏳', color: 'bg-cyan-500' },
+  { type: 'HTTP_REQUEST', label: 'Requisição API', icon: '🌐', color: 'bg-teal-500' },
+  { type: 'AI', label: 'IA', icon: '🤖', color: 'bg-fuchsia-500' },
   { type: 'TRANSFER', label: 'Transferir', icon: '🔄', color: 'bg-rose-500' },
   { type: 'END_FLOW', label: 'Fim', icon: '🏁', color: 'bg-zinc-500' },
 ];

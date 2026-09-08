@@ -77,3 +77,17 @@ export function GmailIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function TwilioIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <circle cx="18" cy="18" r="14" fill="#F22F46" />
+      <circle cx="18" cy="18" r="14" fill="#F22F46" opacity="0.12" />
+      <circle cx="18" cy="18" r="9.5" fill="none" stroke="#F22F46" strokeWidth="3" />
+      <circle cx="14.4" cy="14.4" r="2.4" fill="#F22F46" />
+      <circle cx="21.6" cy="14.4" r="2.4" fill="#F22F46" />
+      <circle cx="14.4" cy="21.6" r="2.4" fill="#F22F46" />
+      <circle cx="21.6" cy="21.6" r="2.4" fill="#F22F46" />
+    </svg>
+  );
+}

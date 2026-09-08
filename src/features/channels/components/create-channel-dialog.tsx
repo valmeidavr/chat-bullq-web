@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Loader2, X, Copy, Check } from 'lucide-react';
 import { channelsService, type ChannelType } from '../services/channels.service';
-import { ZappfyIcon, MetaIcon, InstagramIcon, GmailIcon } from '@/components/ui/icons';
+import { ZappfyIcon, MetaIcon, InstagramIcon, GmailIcon, TwilioIcon } from '@/components/ui/icons';
 
 const channelTypes: { value: ChannelType; label: string; icon: React.ElementType; color: string; description: string }[] = [
   {
@@ -23,6 +23,13 @@ const channelTypes: { value: ChannelType; label: string; icon: React.ElementType
     icon: MetaIcon,
     color: 'bg-zinc-50 dark:bg-zinc-800',
     description: 'Meta Cloud API — templates HSM, alta escala',
+  },
+  {
+    value: 'WHATSAPP_TWILIO',
+    label: 'WhatsApp (Twilio)',
+    icon: TwilioIcon,
+    color: 'bg-zinc-50 dark:bg-zinc-800',
+    description: 'Twilio WhatsApp — enviar/receber, status de entrega',
   },
   {
     value: 'INSTAGRAM',
@@ -55,6 +62,20 @@ const waOfficialSchema = z.object({
   webhookSecret: z.string().optional(),
 });
 
+const twilioSchema = z
+  .object({
+    name: z.string().min(1, 'Nome é obrigatório'),
+    accountSid: z.string().min(1, 'Account SID é obrigatório'),
+    authToken: z.string().min(1, 'Auth Token é obrigatório'),
+    fromNumber: z.string().optional(),
+    messagingServiceSid: z.string().optional(),
+    webhookSecret: z.string().optional(),
+  })
+  .refine((d) => !!d.fromNumber || !!d.messagingServiceSid, {
+    message: 'Informe o número sender OU um Messaging Service SID',
+    path: ['fromNumber'],
+  });
+
 const instagramSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   accessToken: z.string().min(1, 'Access Token é obrigatório'),
@@ -72,6 +93,7 @@ const gmailSchema = z.object({
 });
 
 type ZappfyFormData = z.infer<typeof zappfySchema>;
+type TwilioFormData = z.infer<typeof twilioSchema>;
 type WaOfficialFormData = z.infer<typeof waOfficialSchema>;
 type InstagramFormData = z.infer<typeof instagramSchema>;
 type GmailFormData = z.infer<typeof gmailSchema>;
@@ -98,6 +120,11 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
   const zappfyForm = useForm<ZappfyFormData>({
     resolver: zodResolver(zappfySchema),
     defaultValues: { name: '', token: '', webhookSecret: '' },
+  });
+
+  const twilioForm = useForm<TwilioFormData>({
+    resolver: zodResolver(twilioSchema),
+    defaultValues: { name: '', accountSid: '', authToken: '', fromNumber: '', messagingServiceSid: '', webhookSecret: '' },
   });
 
   const waForm = useForm<WaOfficialFormData>({
@@ -145,6 +172,19 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
   const onSubmitZappfy = (data: ZappfyFormData) =>
     submitChannel('WHATSAPP_ZAPPFY', data.name, { token: data.token }, data.webhookSecret);
 
+  const onSubmitTwilio = (data: TwilioFormData) =>
+    submitChannel(
+      'WHATSAPP_TWILIO',
+      data.name,
+      {
+        accountSid: data.accountSid,
+        authToken: data.authToken,
+        fromNumber: data.fromNumber || undefined,
+        messagingServiceSid: data.messagingServiceSid || undefined,
+      },
+      data.webhookSecret,
+    );
+
   const onSubmitWaOfficial = (data: WaOfficialFormData) =>
     submitChannel(
       'WHATSAPP_OFFICIAL',
@@ -183,6 +223,7 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
     setStep('type');
     setSelectedType(null);
     zappfyForm.reset();
+    twilioForm.reset();
     waForm.reset();
     igForm.reset();
     gmailForm.reset();
@@ -193,6 +234,7 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
 
   const titleMap: Record<string, string> = {
     WHATSAPP_ZAPPFY: 'Configurar Zappfy',
+    WHATSAPP_TWILIO: 'Configurar WhatsApp (Twilio)',
     WHATSAPP_OFFICIAL: 'Configurar WhatsApp Official',
     INSTAGRAM: 'Configurar Instagram',
     GMAIL: 'Configurar Gmail',
@@ -235,6 +277,19 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
             <Field label="Token" placeholder="Token da instância Zappfy" error={zappfyForm.formState.errors.token?.message} {...zappfyForm.register('token')} />
             <Field label="Webhook Secret" placeholder="Opcional" optional {...zappfyForm.register('webhookSecret')} />
             <WebhookUrl url={`${apiBaseUrl}/webhooks/WHATSAPP_ZAPPFY`} copied={copied} onCopy={() => handleCopyWebhook('WHATSAPP_ZAPPFY')} />
+            <FormFooter isLoading={isLoading} onBack={() => setStep('type')} />
+          </form>
+        ) : selectedType === 'WHATSAPP_TWILIO' ? (
+          <form onSubmit={twilioForm.handleSubmit(onSubmitTwilio)} className="mt-6 space-y-4">
+            <Field label="Nome do canal" placeholder="Ex: WhatsApp Twilio" error={twilioForm.formState.errors.name?.message} {...twilioForm.register('name')} />
+            <Field label="Account SID" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" error={twilioForm.formState.errors.accountSid?.message} {...twilioForm.register('accountSid')} />
+            <Field label="Auth Token" type="text" placeholder="Token de autenticação da conta Twilio" error={twilioForm.formState.errors.authToken?.message} {...twilioForm.register('authToken')} />
+            <Field label="Número sender (WhatsApp)" placeholder="+14155238886 (E.164)" error={twilioForm.formState.errors.fromNumber?.message} {...twilioForm.register('fromNumber')} />
+            <Field label="Messaging Service SID" placeholder="MGxxxx — opcional (alternativa ao número)" optional {...twilioForm.register('messagingServiceSid')} />
+            <WebhookUrl url={`${apiBaseUrl}/webhooks/WHATSAPP_TWILIO`} copied={copied} onCopy={() => handleCopyWebhook('WHATSAPP_TWILIO')} />
+            <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-3 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400">
+              No Twilio Console → WhatsApp Sender/Number → cole essa URL em <strong>&quot;When a message comes in&quot;</strong> e também em <strong>&quot;Status callback URL&quot;</strong> (método POST).
+            </div>
             <FormFooter isLoading={isLoading} onBack={() => setStep('type')} />
           </form>
         ) : selectedType === 'WHATSAPP_OFFICIAL' ? (

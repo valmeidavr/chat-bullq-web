@@ -141,11 +141,13 @@ export function EditChannelDialog({
               className={inputCls.replace(' font-mono', '')}
             >
               <option value="FLOW_THEN_AI">Fluxo primeiro, IA depois (recomendado)</option>
+              <option value="FLOW_WITH_AI">Fluxo + IA juntos (menu + IA de apoio)</option>
               <option value="FLOW">Só fluxo (menu/triagem) — sem IA</option>
               <option value="AI">Só IA — ignora o fluxo</option>
             </select>
             <p className="text-[11px] text-zinc-500">
               <b>Fluxo → IA:</b> o fluxo atende e entrega pra IA quando você mandar (nó “Assumir com IA” ou palavra “menu/voltar”).{' '}
+              <b>Fluxo + IA juntos:</b> o menu comanda, mas se o cliente escrever algo fora das opções, a IA responde e volta pro menu.{' '}
               <b>Só fluxo:</b> a IA nunca dispara neste canal.{' '}
               <b>Só IA:</b> toda mensagem vai direto pra IA, mesmo com fluxo ligado.
             </p>

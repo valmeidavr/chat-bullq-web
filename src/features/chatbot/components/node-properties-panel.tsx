@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { X, Trash2, CheckCircle2, AlertCircle, Loader2, LayoutList } from 'lucide-react';
 import type { Node } from '@xyflow/react';
 import { channelsService, type MenuPreviewResult } from '@/features/channels/services/channels.service';
+import { aiAgentsService, type AiAgent } from '@/features/ai-agents/services/ai-agents.service';
 
 interface NodePropertiesPanelProps {
   node: Node;
@@ -25,6 +26,12 @@ export function NodePropertiesPanel({ node, twilioChannelId, onUpdate, onDelete,
 
   const [menuStatus, setMenuStatus] = useState<MenuPreviewResult | null>(null);
   const [menuChecking, setMenuChecking] = useState(false);
+  const [agents, setAgents] = useState<AiAgent[]>([]);
+
+  useEffect(() => {
+    if (node.type !== 'AI') return;
+    aiAgentsService.list().then(setAgents).catch(() => setAgents([]));
+  }, [node.type]);
   const nOpts = (data.options || []).length;
   const menuKind = nOpts <= 3 ? 'Botões' : nOpts <= 10 ? 'Lista' : 'Texto (mais de 10)';
 
@@ -305,24 +312,68 @@ export function NodePropertiesPanel({ node, twilioChannelId, onUpdate, onDelete,
         {node.type === 'AI' && (
           <>
             <div>
-              <label className={labelCls}>Prompt</label>
-              <textarea className={`${inputCls} min-h-[80px] resize-y`} value={data.prompt || ''} onChange={(e) => update('prompt', e.target.value)} placeholder="Responda a dúvida do cliente: {{lastInput}}" />
+              <label className={labelCls}>Agente que responde</label>
+              <select className={inputCls} value={data.agentId || ''} onChange={(e) => update('agentId', e.target.value || undefined)}>
+                <option value="">— Prompt custom (sem agente) —</option>
+                {agents.map((a) => (
+                  <option key={a.id} value={a.id}>{a.name}</option>
+                ))}
+              </select>
+              <p className="mt-1 text-[10px] text-zinc-400">
+                Escolha um agente do Jarvis (persona/conhecimento) ou deixe em branco e use o prompt abaixo. Pode usar os dois — o agente é a base e a instrução vira trava extra.
+              </p>
             </div>
+
             <div>
-              <label className={labelCls}>Instrução do sistema (opcional)</label>
-              <textarea className={`${inputCls} min-h-[60px] resize-y`} value={data.system || ''} onChange={(e) => update('system', e.target.value)} placeholder="Você é o atendente da AAP-VR..." />
-            </div>
-            <div>
-              <label className={labelCls}>Modelo</label>
-              <select className={inputCls} value={data.model || 'openai/gpt-4o-mini'} onChange={(e) => update('model', e.target.value)}>
-                <option value="openai/gpt-4o-mini">gpt-4o-mini (rápido/barato)</option>
-                <option value="openai/gpt-4o">gpt-4o (melhor)</option>
+              <label className={labelCls}>Modo</label>
+              <select className={inputCls} value={data.conversation ? 'conversar' : 'responder'} onChange={(e) => update('conversation', e.target.value === 'conversar')}>
+                <option value="responder">Responder e seguir (1 resposta)</option>
+                <option value="conversar">Conversar (vai e volta até sair)</option>
               </select>
             </div>
+
+            {data.conversation ? (
+              <>
+                <div>
+                  <label className={labelCls}>Mensagem de abertura</label>
+                  <textarea className={`${inputCls} min-h-[50px] resize-y`} value={data.openingMessage || ''} onChange={(e) => update('openingMessage', e.target.value)} placeholder="Pode falar, estou te ouvindo 😊 (digite menu para voltar)" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelCls}>Palavras de saída</label>
+                    <input className={inputCls} value={(data.exitKeywords || ['menu','voltar','sair']).join(', ')} onChange={(e) => update('exitKeywords', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))} placeholder="menu, voltar, sair" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Máx. de trocas</label>
+                    <input type="number" min={1} className={inputCls} value={data.maxTurns ?? 10} onChange={(e) => update('maxTurns', Number(e.target.value) || 10)} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div>
+                <label className={labelCls}>Prompt (pergunta pra IA)</label>
+                <textarea className={`${inputCls} min-h-[70px] resize-y`} value={data.prompt || ''} onChange={(e) => update('prompt', e.target.value)} placeholder="{{pergunta}}" />
+              </div>
+            )}
+
             <div>
-              <label className={labelCls}>Salvar resposta em</label>
-              <input className={inputCls} value={data.saveAs || ''} onChange={(e) => update('saveAs', e.target.value)} placeholder="aiResponse" />
+              <label className={labelCls}>Trava / instrução {data.agentId ? 'extra' : 'do sistema'}</label>
+              <textarea className={`${inputCls} min-h-[60px] resize-y`} value={data.system || ''} onChange={(e) => update('system', e.target.value)} placeholder="Só responda sobre a AAP-VR. Fora disso, recuse educadamente." />
             </div>
+            <div>
+              <label className={labelCls}>Mensagem de recusa (fora do escopo/erro)</label>
+              <input className={inputCls} value={data.refuseMessage || ''} onChange={(e) => update('refuseMessage', e.target.value)} placeholder="Desculpe, só ajudo com assuntos da AAP-VR 😊" />
+            </div>
+
+            {!data.agentId && (
+              <div>
+                <label className={labelCls}>Modelo</label>
+                <select className={inputCls} value={data.model || 'openai/gpt-4o-mini'} onChange={(e) => update('model', e.target.value)}>
+                  <option value="openai/gpt-4o-mini">gpt-4o-mini (rápido/barato)</option>
+                  <option value="openai/gpt-4o">gpt-4o (melhor)</option>
+                </select>
+              </div>
+            )}
             <label className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
               <input type="checkbox" checked={data.sendAsMessage !== false} onChange={(e) => update('sendAsMessage', e.target.checked)} />
               Enviar a resposta ao cliente

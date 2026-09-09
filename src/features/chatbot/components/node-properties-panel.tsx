@@ -88,6 +88,17 @@ export function NodePropertiesPanel({ node, twilioChannelId, onUpdate, onDelete,
               <label className={labelCls}>Título / Texto do Menu</label>
               <textarea className={`${inputCls} min-h-[60px] resize-y`} value={data.title || ''} onChange={(e) => update('title', e.target.value)} placeholder="Escolha uma opção:" />
             </div>
+            <div>
+              <label className={labelCls}>Opções dinâmicas (variável) <span className="text-zinc-400">(opcional)</span></label>
+              <input className={inputCls} value={data.optionsFrom || ''} onChange={(e) => update('optionsFrom', e.target.value || undefined)} placeholder="ex.: especialidadesOptions" />
+              <p className="mt-1 text-[10px] text-zinc-400">Se preenchido, o menu monta as opções a partir dessa variável (lista vinda de uma Ação no portal). Ignora as opções fixas abaixo e salva a escolha na variável indicada.</p>
+            </div>
+            {data.optionsFrom && (
+              <div>
+                <label className={labelCls}>Salvar escolha em</label>
+                <input className={inputCls} value={data.saveAs || ''} onChange={(e) => update('saveAs', e.target.value)} placeholder="ex.: especialidadeId" />
+              </div>
+            )}
             <div className="grid grid-cols-1 gap-2">
               <div>
                 <label className={labelCls}>Cabeçalho <span className="text-zinc-400">(opcional)</span></label>

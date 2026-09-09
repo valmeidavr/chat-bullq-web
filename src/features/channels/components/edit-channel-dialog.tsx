@@ -134,6 +134,24 @@ export function EditChannelDialog({
           ))}
 
           <div className="space-y-1.5">
+            <label className={labelCls}>Modo de atendimento</label>
+            <select
+              value={config.atendimentoMode ?? 'FLOW_THEN_AI'}
+              onChange={(e) => setField('atendimentoMode', e.target.value)}
+              className={inputCls.replace(' font-mono', '')}
+            >
+              <option value="FLOW_THEN_AI">Fluxo primeiro, IA depois (recomendado)</option>
+              <option value="FLOW">Só fluxo (menu/triagem) — sem IA</option>
+              <option value="AI">Só IA — ignora o fluxo</option>
+            </select>
+            <p className="text-[11px] text-zinc-500">
+              <b>Fluxo → IA:</b> o fluxo atende e entrega pra IA quando você mandar (nó “Assumir com IA” ou palavra “menu/voltar”).{' '}
+              <b>Só fluxo:</b> a IA nunca dispara neste canal.{' '}
+              <b>Só IA:</b> toda mensagem vai direto pra IA, mesmo com fluxo ligado.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
             <label className={labelCls}>
               Webhook Secret <span className="text-zinc-400">(opcional)</span>
             </label>

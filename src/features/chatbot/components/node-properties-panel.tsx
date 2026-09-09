@@ -395,6 +395,16 @@ export function NodePropertiesPanel({ node, twilioChannelId, onUpdate, onDelete,
         {node.type === 'OTP_REQUEST' && (
           <>
             <div>
+              <label className={labelCls}>Modo</label>
+              <select className={inputCls} value={data.mode || 'cpf'} onChange={(e) => update('mode', e.target.value)}>
+                <option value="phone">Identificar pelo número + completar CPF (6 do meio)</option>
+                <option value="cpf">CPF completo → código (no chat ou no celular cadastrado)</option>
+              </select>
+              <p className="mt-1 text-[10px] text-zinc-400">
+                <b>Pelo número:</b> se o WhatsApp for o celular cadastrado, mostra <code>103.•••.•••-40</code> e pede os 6 do meio (sem código). Não reconheceu → aresta <b>3ª = pedir CPF</b>.
+              </p>
+            </div>
+            <div>
               <label className={labelCls}>Variável com o CPF</label>
               <input className={inputCls} value={data.cpfVar || 'cpf'} onChange={(e) => update('cpfVar', e.target.value)} placeholder="cpf" />
               <p className="mt-1 text-[10px] text-zinc-400">Capture o CPF num nó Pergunta antes (ex.: variável “cpf”). Este nó confere o CPF + o telefone do cadastro e envia o código.</p>

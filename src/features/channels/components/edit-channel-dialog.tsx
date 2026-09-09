@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Loader2, X } from 'lucide-react';
-import { channelsService, type Channel } from '../services/channels.service';
+import { channelsService, type Channel, type TwilioBalance } from '../services/channels.service';
 
 interface EditChannelDialogProps {
   channel: Channel | null;
@@ -30,10 +30,28 @@ export function EditChannelDialog({
   const [config, setConfig] = useState<Record<string, string>>({});
   const [webhookSecret, setWebhookSecret] = useState('');
   const [saving, setSaving] = useState(false);
+  const [balance, setBalance] = useState<TwilioBalance | null>(null);
+  const [loadingBalance, setLoadingBalance] = useState(false);
+
+  const loadBalance = async () => {
+    if (!channel) return;
+    setLoadingBalance(true);
+    try {
+      setBalance(await channelsService.twilioBalance(channel.id));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao buscar saldo');
+    } finally {
+      setLoadingBalance(false);
+    }
+  };
 
   useEffect(() => {
     if (!channel) return;
     setName(channel.name);
+    setBalance(null);
+    if (channel.type === 'WHATSAPP_TWILIO') {
+      channelsService.twilioBalance(channel.id).then(setBalance).catch(() => setBalance(null));
+    }
     // Coerce nested values to string for the form. Booleans/numbers are
     // re-typed on save when needed (none of the WhatsApp configs use them).
     const flat: Record<string, string> = {};
@@ -113,6 +131,39 @@ export function EditChannelDialog({
               className={inputCls.replace(' font-mono', '')}
             />
           </div>
+
+          {channel.type === 'WHATSAPP_TWILIO' && (
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+              <div className="flex items-center justify-between">
+                <span className={labelCls}>Saldo Twilio</span>
+                <button
+                  type="button"
+                  onClick={loadBalance}
+                  disabled={loadingBalance}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline disabled:opacity-50"
+                >
+                  {loadingBalance && <Loader2 className="h-3 w-3 animate-spin" />} atualizar
+                </button>
+              </div>
+              {balance ? (
+                <div className="mt-1 flex items-baseline gap-4">
+                  <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                    {balance.usd != null ? `US$ ${balance.usd.toFixed(2)}` : `${balance.amount.toFixed(2)} ${balance.currency}`}
+                  </span>
+                  {balance.brl != null && (
+                    <span className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                      {balance.brl.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </span>
+                  )}
+                  {balance.rate && (
+                    <span className="text-[11px] text-zinc-400">câmbio US$1 = R${balance.rate.toFixed(2)}</span>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-1 text-xs text-zinc-400">{loadingBalance ? 'Carregando…' : 'Clique em atualizar para ver o saldo.'}</p>
+              )}
+            </div>
+          )}
 
           {fields.map((f) => (
             <div key={f.key} className="space-y-1.5">

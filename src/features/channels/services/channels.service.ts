@@ -47,6 +47,14 @@ export interface TestConnectionResult {
   data?: any;
 }
 
+export interface TwilioBalance {
+  currency: string;
+  amount: number;
+  usd: number | null;
+  brl: number | null;
+  rate: number | null;
+}
+
 export interface MenuPreviewResult {
   /** false = canal não suporta UI nativa (envia lista em texto). */
   supported: boolean;
@@ -113,6 +121,11 @@ export const channelsService = {
 
   async testConnection(id: string): Promise<TestConnectionResult> {
     const { data } = await api.post<{ data: TestConnectionResult }>(`/channels/${id}/test`);
+    return data.data;
+  },
+
+  async twilioBalance(id: string): Promise<TwilioBalance> {
+    const { data } = await api.get<{ data: TwilioBalance }>(`/channels/${id}/twilio-balance`);
     return data.data;
   },
 

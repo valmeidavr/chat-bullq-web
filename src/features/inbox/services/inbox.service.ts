@@ -294,6 +294,11 @@ export const inboxService = {
     return data.data ?? data;
   },
 
+  async resetFlow(conversationId: string): Promise<{ reset: boolean }> {
+    const { data } = await api.post(`/conversations/${conversationId}/reset-flow`);
+    return data.data ?? data;
+  },
+
   async reopenConversation(conversationId: string): Promise<Conversation> {
     const { data } = await api.post(`/conversations/${conversationId}/reopen`);
     return data.data;

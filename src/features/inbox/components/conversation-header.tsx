@@ -14,6 +14,7 @@ import {
   Send,
   Activity,
   FolderKanban,
+  ListRestart,
 } from 'lucide-react';
 import { ConversationAiToggle } from './conversation-ai-toggle';
 import { AssignmentPopover } from './assignment-popover';
@@ -236,6 +237,27 @@ export function ConversationHeader({
           />
         )}
         <PipelinePopover conversation={conversation} onChanged={onUpdate} />
+        {conversation.status !== 'CLOSED' && (
+          <button
+            onClick={() => {
+              if (
+                !window.confirm(
+                  'Zerar o fluxo desta conversa? A próxima mensagem do contato recomeça do início do fluxo.',
+                )
+              )
+                return;
+              handleAction(
+                () => inboxService.resetFlow(conversation.id),
+                'Fluxo zerado',
+              );
+            }}
+            disabled={isLoading}
+            title="Zerar fluxo — recomeça do início na próxima mensagem"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+          >
+            <ListRestart className="h-3.5 w-3.5" />
+          </button>
+        )}
         {conversation.status !== 'CLOSED' && (
           <button
             onClick={() =>

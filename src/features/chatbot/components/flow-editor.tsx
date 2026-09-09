@@ -58,7 +58,7 @@ function flowNodesToReactFlow(nodes: ChatbotNode[]): { nodes: Node[]; edges: Edg
   return { nodes: rfNodes, edges: rfEdges };
 }
 
-function reactFlowToApiNodes(nodes: Node[], edges: Edge[]): Omit<ChatbotNode, 'id' | 'flowId'>[] {
+function reactFlowToApiNodes(nodes: Node[], edges: Edge[]): (Omit<ChatbotNode, 'id' | 'flowId'> & { id?: string })[] {
   return nodes.map((n) => {
     const outEdges = edges
       .filter((e) => e.source === n.id)
@@ -68,6 +68,9 @@ function reactFlowToApiNodes(nodes: Node[], edges: Edge[]): Omit<ChatbotNode, 'i
       }));
 
     return {
+      // id do editor (React Flow) — o backend remapeia e reescreve as arestas,
+      // preservando as conexões ao salvar.
+      id: n.id,
       type: n.type || 'MESSAGE',
       name: null,
       positionX: n.position.x,

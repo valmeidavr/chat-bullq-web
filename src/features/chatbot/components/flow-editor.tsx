@@ -108,6 +108,7 @@ export function FlowEditor({ flow }: FlowEditorProps) {
     if (type === 'QUESTION') { defaultData.question = ''; defaultData.variable = 'resposta'; }
     if (type === 'HTTP_REQUEST') { defaultData.method = 'GET'; defaultData.url = ''; defaultData.saveAs = 'apiResponse'; defaultData.auth = { type: 'none' }; }
     if (type === 'AI') { defaultData.prompt = ''; defaultData.model = 'openai/gpt-4o-mini'; defaultData.saveAs = 'aiResponse'; defaultData.sendAsMessage = true; }
+    if (type === 'HANDOFF_AI') { defaultData.message = ''; }
     if (type === 'TRANSFER') defaultData.message = 'Transferindo para um atendente...';
 
     const newNode: Node = {

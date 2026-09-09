@@ -7,6 +7,7 @@ const nodeTemplates = [
   { type: 'CONDITION', label: 'Condição', icon: '🔀', color: 'bg-amber-500' },
   { type: 'HTTP_REQUEST', label: 'Requisição API', icon: '🌐', color: 'bg-teal-500' },
   { type: 'AI', label: 'IA', icon: '🤖', color: 'bg-fuchsia-500' },
+  { type: 'HANDOFF_AI', label: 'Assumir com IA', icon: '🤝', color: 'bg-indigo-500' },
   { type: 'TRANSFER', label: 'Transferir', icon: '🔄', color: 'bg-rose-500' },
   { type: 'END_FLOW', label: 'Fim', icon: '🏁', color: 'bg-zinc-500' },
 ];

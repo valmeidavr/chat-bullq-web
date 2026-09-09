@@ -97,6 +97,14 @@ export const AiNode = memo(({ data, selected }: NodeProps) => (
 ));
 AiNode.displayName = 'AiNode';
 
+export const HandoffAiNode = memo(({ data, selected }: NodeProps) => (
+  <BaseNode label="Assumir com IA" icon="🤝" color="bg-indigo-500" selected={selected} hasOutput={false}>
+    <p className="italic opacity-70">A IA assume a conversa daqui.</p>
+    {(data as any).message && <p className="mt-1 line-clamp-2">{(data as any).message}</p>}
+  </BaseNode>
+));
+HandoffAiNode.displayName = 'HandoffAiNode';
+
 export const nodeTypes = {
   START: StartNode,
   MESSAGE: MessageNode,
@@ -105,6 +113,7 @@ export const nodeTypes = {
   CONDITION: ConditionNode,
   HTTP_REQUEST: HttpRequestNode,
   AI: AiNode,
+  HANDOFF_AI: HandoffAiNode,
   WAIT: WaitNode,
   TRANSFER: TransferNode,
   END_FLOW: EndNode,

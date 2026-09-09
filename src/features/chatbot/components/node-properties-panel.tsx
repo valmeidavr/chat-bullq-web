@@ -131,6 +131,18 @@ export function NodePropertiesPanel({ node, onUpdate, onDelete, onClose }: NodeP
           </>
         )}
 
+        {node.type === 'HANDOFF_AI' && (
+          <>
+            <div className="rounded-lg bg-indigo-50 p-2.5 text-xs text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300">
+              A partir daqui a <strong>IA assume</strong> a conversa. O cliente pode digitar <strong>menu</strong> para voltar ao fluxo.
+            </div>
+            <div>
+              <label className={labelCls}>Mensagem-ponte (opcional)</label>
+              <input className={inputCls} value={data.message || ''} onChange={(e) => update('message', e.target.value)} placeholder="Vou te ajudar com mais detalhes…" />
+            </div>
+          </>
+        )}
+
         {node.type === 'TRANSFER' && (
           <div>
             <label className={labelCls}>Mensagem de transferência</label>

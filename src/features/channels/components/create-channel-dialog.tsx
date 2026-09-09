@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Loader2, X, Copy, Check } from 'lucide-react';
 import { channelsService, type ChannelType } from '../services/channels.service';
-import { ZappfyIcon, MetaIcon, InstagramIcon, GmailIcon, TwilioIcon } from '@/components/ui/icons';
+import { ZappfyIcon, MetaIcon, InstagramIcon, GmailIcon, TwilioIcon, EvolutionIcon } from '@/components/ui/icons';
 
 const channelTypes: { value: ChannelType; label: string; icon: React.ElementType; color: string; description: string }[] = [
   {
@@ -30,6 +30,13 @@ const channelTypes: { value: ChannelType; label: string; icon: React.ElementType
     icon: TwilioIcon,
     color: 'bg-zinc-50 dark:bg-zinc-800',
     description: 'Twilio WhatsApp — enviar/receber, status de entrega',
+  },
+  {
+    value: 'WHATSAPP_EVOLUTION',
+    label: 'WhatsApp (Evolution)',
+    icon: EvolutionIcon,
+    color: 'bg-zinc-50 dark:bg-zinc-800',
+    description: 'Evolution API — sua instância (base URL, API key, instância)',
   },
   {
     value: 'INSTAGRAM',
@@ -92,8 +99,17 @@ const gmailSchema = z.object({
   draftMode: z.boolean().optional(),
 });
 
+const evolutionSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  baseUrl: z.string().url('URL inválida (ex: https://evo.seudominio.com)'),
+  apiKey: z.string().min(1, 'API key é obrigatória'),
+  instance: z.string().min(1, 'Nome da instância é obrigatório'),
+  webhookSecret: z.string().optional(),
+});
+
 type ZappfyFormData = z.infer<typeof zappfySchema>;
 type TwilioFormData = z.infer<typeof twilioSchema>;
+type EvolutionFormData = z.infer<typeof evolutionSchema>;
 type WaOfficialFormData = z.infer<typeof waOfficialSchema>;
 type InstagramFormData = z.infer<typeof instagramSchema>;
 type GmailFormData = z.infer<typeof gmailSchema>;
@@ -125,6 +141,11 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
   const twilioForm = useForm<TwilioFormData>({
     resolver: zodResolver(twilioSchema),
     defaultValues: { name: '', accountSid: '', authToken: '', fromNumber: '', messagingServiceSid: '', webhookSecret: '' },
+  });
+
+  const evolutionForm = useForm<EvolutionFormData>({
+    resolver: zodResolver(evolutionSchema),
+    defaultValues: { name: '', baseUrl: '', apiKey: '', instance: '', webhookSecret: '' },
   });
 
   const waForm = useForm<WaOfficialFormData>({
@@ -185,6 +206,14 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
       data.webhookSecret,
     );
 
+  const onSubmitEvolution = (data: EvolutionFormData) =>
+    submitChannel(
+      'WHATSAPP_EVOLUTION',
+      data.name,
+      { baseUrl: data.baseUrl.replace(/\/+$/, ''), apiKey: data.apiKey, instance: data.instance },
+      data.webhookSecret,
+    );
+
   const onSubmitWaOfficial = (data: WaOfficialFormData) =>
     submitChannel(
       'WHATSAPP_OFFICIAL',
@@ -224,6 +253,7 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
     setSelectedType(null);
     zappfyForm.reset();
     twilioForm.reset();
+    evolutionForm.reset();
     waForm.reset();
     igForm.reset();
     gmailForm.reset();
@@ -235,6 +265,7 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
   const titleMap: Record<string, string> = {
     WHATSAPP_ZAPPFY: 'Configurar Zappfy',
     WHATSAPP_TWILIO: 'Configurar WhatsApp (Twilio)',
+    WHATSAPP_EVOLUTION: 'Configurar WhatsApp (Evolution)',
     WHATSAPP_OFFICIAL: 'Configurar WhatsApp Official',
     INSTAGRAM: 'Configurar Instagram',
     GMAIL: 'Configurar Gmail',
@@ -289,6 +320,18 @@ export function CreateChannelDialog({ open, onClose, onCreated }: CreateChannelD
             <WebhookUrl url={`${apiBaseUrl}/webhooks/WHATSAPP_TWILIO`} copied={copied} onCopy={() => handleCopyWebhook('WHATSAPP_TWILIO')} />
             <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-3 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400">
               No Twilio Console → WhatsApp Sender/Number → cole essa URL em <strong>&quot;When a message comes in&quot;</strong> e também em <strong>&quot;Status callback URL&quot;</strong> (método POST).
+            </div>
+            <FormFooter isLoading={isLoading} onBack={() => setStep('type')} />
+          </form>
+        ) : selectedType === 'WHATSAPP_EVOLUTION' ? (
+          <form onSubmit={evolutionForm.handleSubmit(onSubmitEvolution)} className="mt-6 space-y-4">
+            <Field label="Nome do canal" placeholder="Ex: WhatsApp Evolution" error={evolutionForm.formState.errors.name?.message} {...evolutionForm.register('name')} />
+            <Field label="Base URL" placeholder="https://evo.seudominio.com" error={evolutionForm.formState.errors.baseUrl?.message} {...evolutionForm.register('baseUrl')} />
+            <Field label="API Key" type="text" placeholder="apikey da instância/global" error={evolutionForm.formState.errors.apiKey?.message} {...evolutionForm.register('apiKey')} />
+            <Field label="Instância" placeholder="nome da instância na Evolution" error={evolutionForm.formState.errors.instance?.message} {...evolutionForm.register('instance')} />
+            <WebhookUrl url={`${apiBaseUrl}/webhooks/WHATSAPP_EVOLUTION`} copied={copied} onCopy={() => handleCopyWebhook('WHATSAPP_EVOLUTION')} />
+            <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-3 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400">
+              Na Evolution, configure o <strong>Webhook</strong> da instância com essa URL e ative os eventos <strong>MESSAGES_UPSERT</strong> (e MESSAGES_UPDATE p/ status).
             </div>
             <FormFooter isLoading={isLoading} onBack={() => setStep('type')} />
           </form>

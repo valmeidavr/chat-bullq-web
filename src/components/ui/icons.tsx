@@ -91,3 +91,13 @@ export function TwilioIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function EvolutionIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <rect x="3" y="3" width="30" height="30" rx="8" fill="#1DD1A1" opacity="0.12" />
+      <path d="M18 6a12 12 0 1 0 6.3 22.2l3.7 1-1-3.6A12 12 0 0 0 18 6Z" fill="none" stroke="#10B981" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M13 18.4l3.2 3.2L23 15" stroke="#10B981" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

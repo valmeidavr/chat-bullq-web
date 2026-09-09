@@ -10,10 +10,13 @@ import {
   type Channel,
   type WhatsAppTemplate,
 } from '@/features/channels/services/channels.service';
-import { ZappfyIcon, MetaIcon, InstagramIcon, GmailIcon } from '@/components/ui/icons';
+import { templatesService } from '@/features/templates/templates.service';
+import { ZappfyIcon, MetaIcon, InstagramIcon, GmailIcon, TwilioIcon, EvolutionIcon } from '@/components/ui/icons';
 
 const channelIcons: Record<string, React.ElementType> = {
   WHATSAPP_ZAPPFY: ZappfyIcon,
+  WHATSAPP_TWILIO: TwilioIcon,
+  WHATSAPP_EVOLUTION: EvolutionIcon,
   WHATSAPP_OFFICIAL: MetaIcon,
   INSTAGRAM: InstagramIcon,
   GMAIL: GmailIcon,
@@ -63,15 +66,29 @@ export function NewConversationDialog({ open, onClose, onCreated }: Props) {
     [channels, channelId],
   );
   const channelType = selectedChannel?.type;
+  const isOfficial = channelType === 'WHATSAPP_OFFICIAL';
+  const isTwilio = channelType === 'WHATSAPP_TWILIO';
+  const usesTemplate = isOfficial || isTwilio;
 
   const { data: templates } = useQuery({
     queryKey: ['channel-templates', channelId],
     queryFn: () => channelsService.getTemplates(channelId),
-    enabled: open && channelType === 'WHATSAPP_OFFICIAL' && !!channelId,
+    enabled: open && isOfficial && !!channelId,
   });
 
+  // Twilio: usa os templates HSM aprovados (Content API) da própria org.
+  const { data: twilioTemplates } = useQuery({
+    queryKey: ['twilio-templates'],
+    queryFn: () => templatesService.list(),
+    enabled: open && isTwilio,
+  });
+  const twilioApproved = (twilioTemplates ?? []).filter((t) => t.status === 'APPROVED');
+
   const selectedTemplate = templates?.find((t) => t.name === templateName);
-  const varCount = templateVarCount(selectedTemplate);
+  const selectedTwilioTpl = twilioApproved.find((t) => t.id === templateName);
+  const varCount = isTwilio
+    ? selectedTwilioTpl?.variablesCount ?? 0
+    : templateVarCount(selectedTemplate);
 
   // Reset ao abrir/trocar de canal — evita levar lixo de uma tentativa anterior.
   useEffect(() => {
@@ -113,11 +130,10 @@ export function NewConversationDialog({ open, onClose, onCreated }: Props) {
   if (!open) return null;
 
   const isGmail = channelType === 'GMAIL';
-  const isOfficial = channelType === 'WHATSAPP_OFFICIAL';
   const isZappfy = channelType === 'WHATSAPP_ZAPPFY';
 
   const contactValid = isGmail ? email.trim().length > 3 : phone.trim().length >= 8;
-  const messageValid = isOfficial
+  const messageValid = usesTemplate
     ? !!templateName && templateVars.every((v) => v.trim().length > 0)
     : messageText.trim().length > 0;
   const canSubmit = !!channelId && contactValid && messageValid && !sending;
@@ -143,7 +159,17 @@ export function NewConversationDialog({ open, onClose, onCreated }: Props) {
               ],
             },
           }
-        : { type: 'TEXT' as const, content: { text: messageText.trim() } };
+        : isTwilio
+          ? {
+              type: 'TEMPLATE' as const,
+              content: {
+                contentSid: selectedTwilioTpl?.providerSid ?? undefined,
+                variables: Object.fromEntries(
+                  templateVars.map((v, i) => [String(i + 1), v.trim() || '-']),
+                ),
+              },
+            }
+          : { type: 'TEXT' as const, content: { text: messageText.trim() } };
 
       const sentMessage = await inboxService.startConversation({
         channelId,
@@ -291,13 +317,13 @@ export function NewConversationDialog({ open, onClose, onCreated }: Props) {
                 </div>
               )}
 
-              {isOfficial ? (
+              {usesTemplate ? (
                 <div>
                   <label className="text-[12px] font-medium text-zinc-700 dark:text-zinc-300">
                     Template aprovado
                   </label>
                   <p className="mt-0.5 text-[11px] text-zinc-500">
-                    Fora da janela de 24h, a Meta exige um template HSM
+                    Fora da janela de 24h, o WhatsApp exige um template HSM
                     aprovado — não dá pra mandar texto livre.
                   </p>
                   <select
@@ -306,18 +332,28 @@ export function NewConversationDialog({ open, onClose, onCreated }: Props) {
                     disabled={sending}
                     className="mt-1.5 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                   >
-                    <option value="">
-                      {templates ? 'Selecione um template' : 'Carregando templates...'}
-                    </option>
-                    {templates?.map((t) => (
-                      <option key={t.name} value={t.name}>
-                        {t.name} ({t.language})
-                      </option>
-                    ))}
+                    <option value="">Selecione um template</option>
+                    {isOfficial &&
+                      templates?.map((t) => (
+                        <option key={t.name} value={t.name}>
+                          {t.name} ({t.language})
+                        </option>
+                      ))}
+                    {isTwilio &&
+                      twilioApproved.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name} ({t.language})
+                        </option>
+                      ))}
                   </select>
-                  {templates && templates.length === 0 && (
+                  {isOfficial && templates && templates.length === 0 && (
                     <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-500">
                       Nenhum template aprovado encontrado pra esse canal.
+                    </p>
+                  )}
+                  {isTwilio && twilioApproved.length === 0 && (
+                    <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-500">
+                      Nenhum template aprovado. Crie e aprove em Configurações → Templates.
                     </p>
                   )}
                   {templateVars.map((v, i) => (

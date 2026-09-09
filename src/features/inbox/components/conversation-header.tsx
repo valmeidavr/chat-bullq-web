@@ -100,6 +100,13 @@ function HeaderAvatar({ name, avatarUrl }: { name: string | null; avatarUrl: str
   );
 }
 
+/**
+ * Só estes canais implementam importação de histórico no backend
+ * (HistorySyncPort). Nos demais (Twilio, Meta oficial, Evolution, Gmail) o
+ * botão nem aparece — antes dava "does not support sync".
+ */
+const SYNC_CHANNELS = new Set(['WHATSAPP_ZAPPFY', 'INSTAGRAM']);
+
 export function ConversationHeader({
   conversation,
   onUpdate,
@@ -196,14 +203,16 @@ export function ConversationHeader({
             }, 'IA engajada — vai responder em segundos');
           }}
         />
-        <button
-          onClick={handleSync}
-          disabled={isSyncing}
-          title="Sincronizar mensagens"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-        </button>
+        {SYNC_CHANNELS.has(conversation.channel.type) && (
+          <button
+            onClick={handleSync}
+            disabled={isSyncing}
+            title="Sincronizar mensagens"
+            className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+          </button>
+        )}
         {onToggleProject && conversation.isGroup && (
           <button
             onClick={onToggleProject}

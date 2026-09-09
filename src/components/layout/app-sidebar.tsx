@@ -16,6 +16,7 @@ import { PipelinesTree } from '@/features/pipelines/components/pipelines-tree';
 
 import { useAuthStore } from '@/stores/auth-store';
 import { Avatar } from '@/components/ui/avatar';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 import {
   Sidebar,
   SidebarHeader,
@@ -116,6 +117,7 @@ export function AppSidebar() {
       </SidebarBody>
 
       <SidebarFooter>
+        <ThemeToggle />
         <Dropdown>
           <DropdownButton className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left hover:bg-zinc-950/5 dark:hover:bg-white/5">
             <Avatar

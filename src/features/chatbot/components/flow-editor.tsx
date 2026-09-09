@@ -45,7 +45,12 @@ function flowNodesToReactFlow(nodes: ChatbotNode[]): { nodes: Node[]; edges: Edg
         source: n.id,
         target: e.targetNodeId,
         sourceHandle:
-          n.type === 'MENU' || n.type === 'CONDITION' || n.type === 'HTTP_REQUEST'
+          n.type === 'MENU' ||
+          n.type === 'CONDITION' ||
+          n.type === 'HTTP_REQUEST' ||
+          n.type === 'OTP_REQUEST' ||
+          n.type === 'OTP_VERIFY' ||
+          n.type === 'PORTAL_ACTION'
             ? `output-${i}`
             : 'output-0',
         label: e.condition || undefined,
@@ -112,6 +117,8 @@ export function FlowEditor({ flow }: FlowEditorProps) {
     if (type === 'HTTP_REQUEST') { defaultData.method = 'GET'; defaultData.url = ''; defaultData.saveAs = 'apiResponse'; defaultData.auth = { type: 'none' }; }
     if (type === 'AI') { defaultData.prompt = ''; defaultData.model = 'openai/gpt-4o-mini'; defaultData.saveAs = 'aiResponse'; defaultData.sendAsMessage = true; }
     if (type === 'HANDOFF_AI') { defaultData.message = ''; }
+    if (type === 'OTP_REQUEST') { defaultData.cpfVar = 'cpf'; }
+    if (type === 'PORTAL_ACTION') { defaultData.action = 'mensalidades'; defaultData.saveAs = 'portalData'; defaultData.sendAsMessage = true; }
     if (type === 'TRANSFER') defaultData.message = 'Transferindo para um atendente...';
 
     const newNode: Node = {

@@ -8,6 +8,9 @@ const nodeTemplates = [
   { type: 'HTTP_REQUEST', label: 'Requisição API', icon: '🌐', color: 'bg-teal-500' },
   { type: 'AI', label: 'IA', icon: '🤖', color: 'bg-fuchsia-500' },
   { type: 'HANDOFF_AI', label: 'Assumir com IA', icon: '🤝', color: 'bg-indigo-500' },
+  { type: 'OTP_REQUEST', label: 'Enviar código', icon: '🔐', color: 'bg-emerald-600' },
+  { type: 'OTP_VERIFY', label: 'Validar código', icon: '✅', color: 'bg-emerald-500' },
+  { type: 'PORTAL_ACTION', label: 'Ação no portal', icon: '🏥', color: 'bg-sky-600' },
   { type: 'TRANSFER', label: 'Transferir', icon: '🔄', color: 'bg-rose-500' },
   { type: 'END_FLOW', label: 'Fim', icon: '🏁', color: 'bg-zinc-500' },
 ];

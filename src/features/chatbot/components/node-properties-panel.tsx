@@ -381,6 +381,73 @@ export function NodePropertiesPanel({ node, twilioChannelId, onUpdate, onDelete,
           </>
         )}
 
+        {node.type === 'OTP_REQUEST' && (
+          <>
+            <div>
+              <label className={labelCls}>Variável com o CPF</label>
+              <input className={inputCls} value={data.cpfVar || 'cpf'} onChange={(e) => update('cpfVar', e.target.value)} placeholder="cpf" />
+              <p className="mt-1 text-[10px] text-zinc-400">Capture o CPF num nó Pergunta antes (ex.: variável “cpf”). Este nó confere o CPF + o telefone do cadastro e envia o código.</p>
+            </div>
+            <p className="text-[11px] text-zinc-500">Arestas: <b>1ª = enviado</b> (segue pra validar), <b>2ª = não confere</b> (ex.: transferir p/ secretaria).</p>
+          </>
+        )}
+
+        {node.type === 'OTP_VERIFY' && (
+          <p className="text-[11px] text-zinc-500">Aguarda o código digitado e confere. Arestas: <b>1ª = ok</b>, <b>2ª = falhou/expirou</b>. Não precisa de configuração.</p>
+        )}
+
+        {node.type === 'PORTAL_ACTION' && (
+          <>
+            <div>
+              <label className={labelCls}>Ação</label>
+              <select className={inputCls} value={data.action || 'mensalidades'} onChange={(e) => update('action', e.target.value)}>
+                <option value="mensalidades">Mensalidades (em aberto/futuras)</option>
+                <option value="consultas">Minhas consultas</option>
+                <option value="unidades">Listar unidades</option>
+                <option value="especialidades">Listar especialidades</option>
+                <option value="horarios">Listar horários livres</option>
+                <option value="agendar">Agendar consulta</option>
+                <option value="confirmar">Confirmar consulta</option>
+                <option value="cancelar">Cancelar consulta</option>
+              </select>
+              <p className="mt-1 text-[10px] text-zinc-400">Exige identidade confirmada (OTP). As regras (permissão, ECG, 48h/4h) são as mesmas do site.</p>
+            </div>
+            {(data.action === 'especialidades' || data.action === 'horarios') && (
+              <div>
+                <label className={labelCls}>Variável da unidade</label>
+                <input className={inputCls} value={data.unidadeVar || 'unidadeId'} onChange={(e) => update('unidadeVar', e.target.value)} placeholder="unidadeId" />
+              </div>
+            )}
+            {data.action === 'horarios' && (
+              <div>
+                <label className={labelCls}>Variável da especialidade</label>
+                <input className={inputCls} value={data.especialidadeVar || 'especialidadeId'} onChange={(e) => update('especialidadeVar', e.target.value)} placeholder="especialidadeId" />
+              </div>
+            )}
+            {data.action === 'agendar' && (
+              <div>
+                <label className={labelCls}>Variável do horário (agendaId)</label>
+                <input className={inputCls} value={data.agendaVar || 'agendaId'} onChange={(e) => update('agendaVar', e.target.value)} placeholder="agendaId" />
+              </div>
+            )}
+            {(data.action === 'confirmar' || data.action === 'cancelar') && (
+              <div>
+                <label className={labelCls}>Variável da consulta (id)</label>
+                <input className={inputCls} value={data.idVar || 'consultaId'} onChange={(e) => update('idVar', e.target.value)} placeholder="consultaId" />
+              </div>
+            )}
+            <div>
+              <label className={labelCls}>Salvar resposta em</label>
+              <input className={inputCls} value={data.saveAs || 'portalData'} onChange={(e) => update('saveAs', e.target.value)} placeholder="portalData" />
+            </div>
+            <label className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
+              <input type="checkbox" checked={data.sendAsMessage !== false} onChange={(e) => update('sendAsMessage', e.target.checked)} />
+              Enviar resultado formatado ao cliente
+            </label>
+            <p className="text-[11px] text-zinc-500">Arestas: <b>1ª = sucesso</b>, <b>2ª = erro</b>.</p>
+          </>
+        )}
+
         {node.type !== 'START' && node.type !== 'END_FLOW' && (
           <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
             <button

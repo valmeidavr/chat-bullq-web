@@ -105,6 +105,39 @@ export const HandoffAiNode = memo(({ data, selected }: NodeProps) => (
 ));
 HandoffAiNode.displayName = 'HandoffAiNode';
 
+export const OtpRequestNode = memo(({ selected }: NodeProps) => (
+  <BaseNode label="Enviar código (OTP)" icon="🔐" color="bg-emerald-600" selected={selected} outputCount={2}>
+    <p className="italic opacity-70">Confere CPF + telefone e envia o código.</p>
+    <div className="mt-1 flex gap-2 text-[10px]">
+      <span className="rounded bg-green-100 px-1 text-green-700">enviado ↓</span>
+      <span className="rounded bg-red-100 px-1 text-red-700">não confere ↓</span>
+    </div>
+  </BaseNode>
+));
+OtpRequestNode.displayName = 'OtpRequestNode';
+
+export const OtpVerifyNode = memo(({ selected }: NodeProps) => (
+  <BaseNode label="Validar código (OTP)" icon="✅" color="bg-emerald-500" selected={selected} outputCount={2}>
+    <p className="italic opacity-70">Confere o código digitado.</p>
+    <div className="mt-1 flex gap-2 text-[10px]">
+      <span className="rounded bg-green-100 px-1 text-green-700">ok ↓</span>
+      <span className="rounded bg-red-100 px-1 text-red-700">falhou ↓</span>
+    </div>
+  </BaseNode>
+));
+OtpVerifyNode.displayName = 'OtpVerifyNode';
+
+export const PortalActionNode = memo(({ data, selected }: NodeProps) => (
+  <BaseNode label="Ação no portal" icon="🏥" color="bg-sky-600" selected={selected} outputCount={2}>
+    <p className="truncate"><b>{(data as any).action || 'mensalidades'}</b></p>
+    <div className="mt-1 flex gap-2 text-[10px]">
+      <span className="rounded bg-green-100 px-1 text-green-700">sucesso ↓</span>
+      <span className="rounded bg-red-100 px-1 text-red-700">erro ↓</span>
+    </div>
+  </BaseNode>
+));
+PortalActionNode.displayName = 'PortalActionNode';
+
 export const nodeTypes = {
   START: StartNode,
   MESSAGE: MessageNode,
@@ -114,6 +147,9 @@ export const nodeTypes = {
   HTTP_REQUEST: HttpRequestNode,
   AI: AiNode,
   HANDOFF_AI: HandoffAiNode,
+  OTP_REQUEST: OtpRequestNode,
+  OTP_VERIFY: OtpVerifyNode,
+  PORTAL_ACTION: PortalActionNode,
   WAIT: WaitNode,
   TRANSFER: TransferNode,
   END_FLOW: EndNode,

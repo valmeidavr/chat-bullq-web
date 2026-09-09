@@ -94,10 +94,17 @@ export function NodePropertiesPanel({ node, twilioChannelId, onUpdate, onDelete,
               <p className="mt-1 text-[10px] text-zinc-400">Se preenchido, o menu monta as opções a partir dessa variável (lista vinda de uma Ação no portal). Ignora as opções fixas abaixo e salva a escolha na variável indicada.</p>
             </div>
             {data.optionsFrom && (
-              <div>
-                <label className={labelCls}>Salvar escolha em</label>
-                <input className={inputCls} value={data.saveAs || ''} onChange={(e) => update('saveAs', e.target.value)} placeholder="ex.: especialidadeId" />
-              </div>
+              <>
+                <div>
+                  <label className={labelCls}>Salvar escolha em</label>
+                  <input className={inputCls} value={data.saveAs || ''} onChange={(e) => update('saveAs', e.target.value)} placeholder="ex.: especialidadeId" />
+                </div>
+                <div>
+                  <label className={labelCls}>Mensagem se a lista vier vazia</label>
+                  <input className={inputCls} value={data.emptyMessage || ''} onChange={(e) => update('emptyMessage', e.target.value)} placeholder="Nenhum horário disponível agora." />
+                  <p className="mt-1 text-[10px] text-zinc-400">Enviada só quando não há itens (segue pela aresta “empty”). Não confundir com o rodapé, que aparece sempre.</p>
+                </div>
+              </>
             )}
             <div className="grid grid-cols-1 gap-2">
               <div>

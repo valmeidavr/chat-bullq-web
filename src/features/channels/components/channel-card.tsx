@@ -16,6 +16,7 @@ import {
   XCircle,
   Lock,
   Globe,
+  Phone,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Channel } from '../services/channels.service';
@@ -32,6 +33,29 @@ const channelTypeMap: Record<string, { label: string; icon: React.ElementType; c
   INSTAGRAM: { label: 'Instagram', icon: InstagramIcon, color: 'bg-zinc-50 dark:bg-zinc-800' },
   GMAIL: { label: 'Gmail', icon: GmailIcon, color: 'bg-zinc-50 dark:bg-zinc-800' },
 };
+
+/** Identificador legível do canal (número/instância/e-mail) pra mostrar no card. */
+function channelIdentifier(channel: Channel): string | null {
+  const c = (channel.config || {}) as Record<string, any>;
+  switch (channel.type) {
+    case 'WHATSAPP_TWILIO':
+      return c.fromNumber || c.messagingServiceSid || null;
+    case 'WHATSAPP_EVOLUTION':
+      return c.instance
+        ? `${c.instance}${c.baseUrl ? ' · ' + String(c.baseUrl).replace(/^https?:\/\//, '') : ''}`
+        : null;
+    case 'WHATSAPP_OFFICIAL':
+      return c.displayPhoneNumber || c.phoneNumberId || null;
+    case 'INSTAGRAM':
+      return c.username ? `@${c.username}` : c.igBusinessId || null;
+    case 'GMAIL':
+      return c.email || null;
+    case 'WHATSAPP_ZAPPFY':
+      return c.number || c.instanceId || null;
+    default:
+      return null;
+  }
+}
 
 interface ChannelCardProps {
   channel: Channel;
@@ -170,6 +194,12 @@ export function ChannelCard({ channel, onUpdate }: ChannelCardProps) {
           )}
         </div>
         <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{meta.label}</p>
+        {channelIdentifier(channel) && (
+          <p className="mt-1 flex items-center gap-1 truncate font-mono text-xs text-zinc-600 dark:text-zinc-300">
+            <Phone className="h-3 w-3 shrink-0 text-zinc-400" />
+            {channelIdentifier(channel)}
+          </p>
+        )}
 
         {sync.supported && sync.job && (
           <div className="mt-3">

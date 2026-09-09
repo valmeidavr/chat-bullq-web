@@ -1,11 +1,13 @@
 'use client';
 
-import { useCallback } from 'react';
-import { X, Trash2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { X, Trash2, CheckCircle2, AlertCircle, Loader2, LayoutList } from 'lucide-react';
 import type { Node } from '@xyflow/react';
+import { channelsService, type MenuPreviewResult } from '@/features/channels/services/channels.service';
 
 interface NodePropertiesPanelProps {
   node: Node;
+  twilioChannelId?: string;
   onUpdate: (id: string, data: Record<string, any>) => void;
   onDelete: (id: string) => void;
   onClose: () => void;
@@ -14,12 +16,37 @@ interface NodePropertiesPanelProps {
 const inputCls = 'w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-primary';
 const labelCls = 'block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1';
 
-export function NodePropertiesPanel({ node, onUpdate, onDelete, onClose }: NodePropertiesPanelProps) {
+export function NodePropertiesPanel({ node, twilioChannelId, onUpdate, onDelete, onClose }: NodePropertiesPanelProps) {
   const data = node.data as Record<string, any>;
   const update = useCallback(
     (key: string, value: any) => onUpdate(node.id, { ...data, [key]: value }),
     [node.id, data, onUpdate],
   );
+
+  const [menuStatus, setMenuStatus] = useState<MenuPreviewResult | null>(null);
+  const [menuChecking, setMenuChecking] = useState(false);
+  const nOpts = (data.options || []).length;
+  const menuKind = nOpts <= 3 ? 'Botões' : nOpts <= 10 ? 'Lista' : 'Texto (mais de 10)';
+
+  const checkMenu = useCallback(async () => {
+    if (!twilioChannelId) return;
+    setMenuChecking(true);
+    setMenuStatus(null);
+    try {
+      const res = await channelsService.menuPreview(twilioChannelId, {
+        header: data.header || undefined,
+        body: data.title || 'Escolha uma opção:',
+        footer: data.footer || undefined,
+        buttonText: data.buttonText || undefined,
+        options: (data.options || []).map((o: any) => ({ id: o.value, title: o.label, description: o.description || undefined })),
+      });
+      setMenuStatus(res);
+    } catch (err) {
+      setMenuStatus({ supported: true, ok: false, error: err instanceof Error ? err.message : 'Erro' });
+    } finally {
+      setMenuChecking(false);
+    }
+  }, [twilioChannelId, data]);
 
   return (
     <div className="w-72 border-l border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
@@ -51,33 +78,104 @@ export function NodePropertiesPanel({ node, onUpdate, onDelete, onClose }: NodeP
         {node.type === 'MENU' && (
           <>
             <div>
-              <label className={labelCls}>Título do Menu</label>
-              <input className={inputCls} value={data.title || ''} onChange={(e) => update('title', e.target.value)} placeholder="Escolha uma opção:" />
+              <label className={labelCls}>Título / Texto do Menu</label>
+              <textarea className={`${inputCls} min-h-[60px] resize-y`} value={data.title || ''} onChange={(e) => update('title', e.target.value)} placeholder="Escolha uma opção:" />
+            </div>
+            <div className="grid grid-cols-1 gap-2">
+              <div>
+                <label className={labelCls}>Cabeçalho <span className="text-zinc-400">(opcional)</span></label>
+                <input className={inputCls} value={data.header || ''} onChange={(e) => update('header', e.target.value)} placeholder="Ex.: AAP-VR" />
+              </div>
+              <div>
+                <label className={labelCls}>Rodapé <span className="text-zinc-400">(opcional)</span></label>
+                <input className={inputCls} value={data.footer || ''} onChange={(e) => update('footer', e.target.value)} placeholder="Ex.: Atendimento 8h–14h" />
+              </div>
+              <div>
+                <label className={labelCls}>Texto do botão da lista <span className="text-zinc-400">(4+ opções)</span></label>
+                <input className={inputCls} value={data.buttonText || ''} onChange={(e) => update('buttonText', e.target.value)} placeholder="Ver opções" />
+              </div>
             </div>
             <div>
               <label className={labelCls}>Opções</label>
               {(data.options || []).map((opt: any, i: number) => (
-                <div key={i} className="mt-1 flex gap-1">
+                <div key={i} className="mt-2 rounded-md border border-zinc-200 p-2 dark:border-zinc-800">
+                  <div className="flex gap-1">
+                    <input
+                      className={`${inputCls} flex-1`}
+                      value={opt.label}
+                      onChange={(e) => {
+                        const opts = [...(data.options || [])];
+                        opts[i] = { ...opts[i], label: e.target.value };
+                        update('options', opts);
+                      }}
+                      placeholder={`Opção ${i + 1}`}
+                    />
+                    <button
+                      onClick={() => update('options', (data.options || []).filter((_: any, j: number) => j !== i))}
+                      className="rounded p-1 text-zinc-400 hover:text-red-500"
+                    ><Trash2 className="h-3.5 w-3.5" /></button>
+                  </div>
                   <input
-                    className={`${inputCls} flex-1`}
-                    value={opt.label}
+                    className={`${inputCls} mt-1 text-xs`}
+                    value={opt.description || ''}
                     onChange={(e) => {
                       const opts = [...(data.options || [])];
-                      opts[i] = { ...opts[i], label: e.target.value };
+                      opts[i] = { ...opts[i], description: e.target.value };
                       update('options', opts);
                     }}
-                    placeholder={`Opção ${i + 1}`}
+                    placeholder="Descrição (aparece na lista nativa) — opcional"
                   />
-                  <button
-                    onClick={() => update('options', (data.options || []).filter((_: any, j: number) => j !== i))}
-                    className="rounded p-1 text-zinc-400 hover:text-red-500"
-                  ><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
               ))}
               <button
                 onClick={() => update('options', [...(data.options || []), { label: '', value: `opt_${Date.now()}` }])}
                 className="mt-2 text-xs font-medium text-primary hover:underline"
               >+ Adicionar opção</button>
+            </div>
+
+            {/* UI nativa do WhatsApp + status no Twilio */}
+            <div className="rounded-md border border-zinc-200 p-3 dark:border-zinc-800">
+              <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                <LayoutList className="h-3.5 w-3.5" /> UI nativa do WhatsApp
+              </div>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                {nOpts <= 3
+                  ? 'Até 3 opções → enviado como botões.'
+                  : nOpts <= 10
+                    ? 'De 4 a 10 opções → enviado como lista para tocar.'
+                    : 'Mais de 10 opções → enviado como texto numerado.'}
+                {' '}Renderização atual: <span className="font-medium">{menuKind}</span>.
+              </p>
+
+              {twilioChannelId ? (
+                <>
+                  <button
+                    onClick={checkMenu}
+                    disabled={menuChecking || nOpts === 0}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-200 disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-300"
+                  >
+                    {menuChecking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                    Verificar no Twilio
+                  </button>
+                  {menuStatus && (
+                    <div className="mt-2 text-[11px]">
+                      {menuStatus.supported === false ? (
+                        <span className="inline-flex items-center gap-1 text-zinc-500"><AlertCircle className="h-3.5 w-3.5" /> {menuStatus.message}</span>
+                      ) : menuStatus.ok ? (
+                        <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
+                          <CheckCircle2 className="h-3.5 w-3.5" /> Autorizado no Twilio ({menuStatus.kind === 'quick-reply' ? 'botões' : 'lista'}) — nativo, sem aprovação necessária.
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400"><AlertCircle className="h-3.5 w-3.5" /> {menuStatus.error}</span>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="mt-2 text-[11px] text-amber-600 dark:text-amber-400">
+                  Ligue este fluxo a um canal Twilio para usar botões/lista nativos. Em outros canais, o menu vai como lista em texto.
+                </p>
+              )}
             </div>
           </>
         )}

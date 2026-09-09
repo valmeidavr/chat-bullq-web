@@ -47,6 +47,17 @@ export interface TestConnectionResult {
   data?: any;
 }
 
+export interface MenuPreviewResult {
+  /** false = canal não suporta UI nativa (envia lista em texto). */
+  supported: boolean;
+  /** 'quick-reply' = botões, 'list-picker' = lista, 'text' = texto simples. */
+  kind?: 'quick-reply' | 'list-picker' | 'text';
+  ok?: boolean;
+  contentSid?: string;
+  error?: string;
+  message?: string;
+}
+
 export type SyncStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
 export type SyncMode = 'INITIAL' | 'MANUAL' | 'DELTA';
 
@@ -102,6 +113,14 @@ export const channelsService = {
 
   async testConnection(id: string): Promise<TestConnectionResult> {
     const { data } = await api.post<{ data: TestConnectionResult }>(`/channels/${id}/test`);
+    return data.data;
+  },
+
+  async menuPreview(
+    id: string,
+    payload: { header?: string; body: string; footer?: string; buttonText?: string; options: { id: string; title: string; description?: string }[] },
+  ): Promise<MenuPreviewResult> {
+    const { data } = await api.post<{ data: MenuPreviewResult }>(`/channels/${id}/menu-preview`, payload);
     return data.data;
   },
 

@@ -213,6 +213,7 @@ export function FlowEditor({ flow }: FlowEditorProps) {
         {selectedNode && (
           <NodePropertiesPanel
             node={selectedNode}
+            twilioChannelId={flow.channels?.find((c) => c.channel.type === 'WHATSAPP_TWILIO')?.channelId}
             onUpdate={handleUpdateNodeData}
             onDelete={handleDeleteNode}
             onClose={() => setSelectedNode(null)}

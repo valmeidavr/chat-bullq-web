@@ -9,6 +9,7 @@ import {
   ChevronUp,
   Zap,
   FolderKanban,
+  Workflow,
 } from 'lucide-react';
 import { InboxTree } from '@/features/inbox-views/components/inbox-tree';
 import { JarvisTree } from '@/features/ai-agents/components/jarvis-tree';
@@ -38,6 +39,7 @@ import {
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/chatbot', label: 'Fluxos', icon: Workflow },
   { href: '/projects', label: 'Projetos', icon: FolderKanban },
   { href: '/automations', label: 'Automações', icon: Zap },
 ];

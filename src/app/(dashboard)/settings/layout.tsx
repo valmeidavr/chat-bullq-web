@@ -28,7 +28,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         Gerencie sua organização e integrações
       </p>
 
-      <nav className="mt-6 flex gap-1 overflow-x-auto border-b border-zinc-200 dark:border-zinc-800">
+      <nav className="no-scrollbar mt-6 flex gap-1 overflow-x-auto border-b border-zinc-200 dark:border-zinc-800">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
           return (

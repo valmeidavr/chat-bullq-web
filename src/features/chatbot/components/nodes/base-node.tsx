@@ -1,10 +1,12 @@
 'use client';
 
 import { Handle, Position, type NodeProps } from '@xyflow/react';
+import type { LucideIcon } from 'lucide-react';
 
 interface BaseNodeProps {
   label: string;
-  icon: string;
+  /** Ícone SVG (Lucide) — sem emoji. */
+  icon: LucideIcon;
   color: string;
   children?: React.ReactNode;
   selected?: boolean;
@@ -15,7 +17,7 @@ interface BaseNodeProps {
 
 export function BaseNode({
   label,
-  icon,
+  icon: Icon,
   color,
   children,
   selected,
@@ -37,7 +39,9 @@ export function BaseNode({
         />
       )}
       <div className={`flex items-center gap-2 rounded-t-[10px] px-3 py-2 ${color}`}>
-        <span className="text-base">{icon}</span>
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-white/20">
+          <Icon className="h-3.5 w-3.5 text-white" strokeWidth={2.25} aria-hidden="true" />
+        </span>
         <span className="text-xs font-semibold text-white">{label}</span>
       </div>
       {children && (

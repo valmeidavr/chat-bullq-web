@@ -3,16 +3,17 @@
 import { memo } from 'react';
 import type { NodeProps } from '@xyflow/react';
 import { BaseNode } from './base-node';
+import { NODE_ICONS } from './node-icons';
 
 export const StartNode = memo(({ selected }: NodeProps) => (
-  <BaseNode label="Início" icon="▶️" color="bg-emerald-500" selected={selected} hasInput={false}>
+  <BaseNode label="Início" icon={NODE_ICONS.START} color="bg-emerald-500" selected={selected} hasInput={false}>
     <p className="italic opacity-60">Ponto de entrada do fluxo</p>
   </BaseNode>
 ));
 StartNode.displayName = 'StartNode';
 
 export const MessageNode = memo(({ data, selected }: NodeProps) => (
-  <BaseNode label="Mensagem" icon="💬" color="bg-blue-500" selected={selected}>
+  <BaseNode label="Mensagem" icon={NODE_ICONS.MESSAGE} color="bg-blue-500" selected={selected}>
     <p className="line-clamp-2">{(data as any).message || 'Texto da mensagem...'}</p>
   </BaseNode>
 ));
@@ -21,7 +22,7 @@ MessageNode.displayName = 'MessageNode';
 export const MenuNode = memo(({ data, selected }: NodeProps) => {
   const options = (data as any).options || [];
   return (
-    <BaseNode label="Menu" icon="📋" color="bg-violet-500" selected={selected} outputCount={Math.max(options.length, 1)}>
+    <BaseNode label="Menu" icon={NODE_ICONS.MENU} color="bg-violet-500" selected={selected} outputCount={Math.max(options.length, 1)}>
       <p className="font-medium">{(data as any).title || 'Menu de opções'}</p>
       {options.length > 0 && (
         <ul className="mt-1 space-y-0.5">
@@ -39,7 +40,7 @@ export const MenuNode = memo(({ data, selected }: NodeProps) => {
 MenuNode.displayName = 'MenuNode';
 
 export const ConditionNode = memo(({ data, selected }: NodeProps) => (
-  <BaseNode label="Condição" icon="🔀" color="bg-amber-500" selected={selected} outputCount={2}>
+  <BaseNode label="Condição" icon={NODE_ICONS.CONDITION} color="bg-amber-500" selected={selected} outputCount={2}>
     <p>{(data as any).variable || 'variavel'} {(data as any).operator || '=='} {(data as any).value || '?'}</p>
     <div className="mt-1 flex gap-2 text-[10px]">
       <span className="rounded bg-green-100 px-1 text-green-700">Sim ↓</span>
@@ -50,7 +51,7 @@ export const ConditionNode = memo(({ data, selected }: NodeProps) => (
 ConditionNode.displayName = 'ConditionNode';
 
 export const WaitNode = memo(({ data, selected }: NodeProps) => (
-  <BaseNode label="Aguardar Input" icon="⏳" color="bg-cyan-500" selected={selected}>
+  <BaseNode label="Aguardar Input" icon={NODE_ICONS.WAIT} color="bg-cyan-500" selected={selected}>
     <p>{(data as any).prompt || 'Aguardando resposta do usuário...'}</p>
     {(data as any).saveAs && <p className="mt-1 opacity-50">Salvar em: {(data as any).saveAs}</p>}
   </BaseNode>
@@ -58,21 +59,21 @@ export const WaitNode = memo(({ data, selected }: NodeProps) => (
 WaitNode.displayName = 'WaitNode';
 
 export const TransferNode = memo(({ data, selected }: NodeProps) => (
-  <BaseNode label="Transferir" icon="🔄" color="bg-rose-500" selected={selected} hasOutput={false}>
+  <BaseNode label="Transferir" icon={NODE_ICONS.TRANSFER} color="bg-rose-500" selected={selected} hasOutput={false}>
     <p>{(data as any).message || 'Transferindo para atendente...'}</p>
   </BaseNode>
 ));
 TransferNode.displayName = 'TransferNode';
 
 export const EndNode = memo(({ selected }: NodeProps) => (
-  <BaseNode label="Fim" icon="🏁" color="bg-zinc-500" selected={selected} hasOutput={false}>
+  <BaseNode label="Fim" icon={NODE_ICONS.END_FLOW} color="bg-zinc-500" selected={selected} hasOutput={false}>
     <p className="italic opacity-60">Fluxo encerrado</p>
   </BaseNode>
 ));
 EndNode.displayName = 'EndNode';
 
 export const QuestionNode = memo(({ data, selected }: NodeProps) => (
-  <BaseNode label="Pergunta" icon="❓" color="bg-cyan-500" selected={selected}>
+  <BaseNode label="Pergunta" icon={NODE_ICONS.QUESTION} color="bg-cyan-500" selected={selected}>
     <p className="line-clamp-2">{(data as any).question || 'Pergunta ao cliente...'}</p>
     {(data as any).variable && <p className="mt-1 opacity-50">→ {(data as any).variable}</p>}
   </BaseNode>
@@ -80,7 +81,7 @@ export const QuestionNode = memo(({ data, selected }: NodeProps) => (
 QuestionNode.displayName = 'QuestionNode';
 
 export const HttpRequestNode = memo(({ data, selected }: NodeProps) => (
-  <BaseNode label="Requisição API" icon="🌐" color="bg-teal-500" selected={selected} outputCount={2}>
+  <BaseNode label="Requisição API" icon={NODE_ICONS.HTTP_REQUEST} color="bg-teal-500" selected={selected} outputCount={2}>
     <p className="truncate"><b>{(data as any).method || 'GET'}</b> {(data as any).url || 'https://...'}</p>
     <div className="mt-1 flex gap-2 text-[10px]">
       <span className="rounded bg-green-100 px-1 text-green-700">sucesso ↓</span>
@@ -91,14 +92,14 @@ export const HttpRequestNode = memo(({ data, selected }: NodeProps) => (
 HttpRequestNode.displayName = 'HttpRequestNode';
 
 export const AiNode = memo(({ data, selected }: NodeProps) => (
-  <BaseNode label="IA" icon="🤖" color="bg-fuchsia-500" selected={selected}>
+  <BaseNode label="IA" icon={NODE_ICONS.AI} color="bg-fuchsia-500" selected={selected}>
     <p className="line-clamp-2">{(data as any).prompt || 'Prompt de IA...'}</p>
   </BaseNode>
 ));
 AiNode.displayName = 'AiNode';
 
 export const HandoffAiNode = memo(({ data, selected }: NodeProps) => (
-  <BaseNode label="Assumir com IA" icon="🤝" color="bg-indigo-500" selected={selected} hasOutput={false}>
+  <BaseNode label="Assumir com IA" icon={NODE_ICONS.HANDOFF_AI} color="bg-indigo-500" selected={selected} hasOutput={false}>
     <p className="italic opacity-70">A IA assume a conversa daqui.</p>
     {(data as any).message && <p className="mt-1 line-clamp-2">{(data as any).message}</p>}
   </BaseNode>
@@ -106,7 +107,7 @@ export const HandoffAiNode = memo(({ data, selected }: NodeProps) => (
 HandoffAiNode.displayName = 'HandoffAiNode';
 
 export const OtpRequestNode = memo(({ selected }: NodeProps) => (
-  <BaseNode label="Enviar código (OTP)" icon="🔐" color="bg-emerald-600" selected={selected} outputCount={2}>
+  <BaseNode label="Enviar código (OTP)" icon={NODE_ICONS.OTP_REQUEST} color="bg-emerald-600" selected={selected} outputCount={2}>
     <p className="italic opacity-70">Confere CPF + telefone e envia o código.</p>
     <div className="mt-1 flex gap-2 text-[10px]">
       <span className="rounded bg-green-100 px-1 text-green-700">enviado ↓</span>
@@ -117,7 +118,7 @@ export const OtpRequestNode = memo(({ selected }: NodeProps) => (
 OtpRequestNode.displayName = 'OtpRequestNode';
 
 export const OtpVerifyNode = memo(({ selected }: NodeProps) => (
-  <BaseNode label="Validar código (OTP)" icon="✅" color="bg-emerald-500" selected={selected} outputCount={2}>
+  <BaseNode label="Validar código (OTP)" icon={NODE_ICONS.OTP_VERIFY} color="bg-emerald-500" selected={selected} outputCount={2}>
     <p className="italic opacity-70">Confere o código digitado.</p>
     <div className="mt-1 flex gap-2 text-[10px]">
       <span className="rounded bg-green-100 px-1 text-green-700">ok ↓</span>
@@ -128,7 +129,7 @@ export const OtpVerifyNode = memo(({ selected }: NodeProps) => (
 OtpVerifyNode.displayName = 'OtpVerifyNode';
 
 export const PortalActionNode = memo(({ data, selected }: NodeProps) => (
-  <BaseNode label="Ação no portal" icon="🏥" color="bg-sky-600" selected={selected} outputCount={2}>
+  <BaseNode label="Ação no portal" icon={NODE_ICONS.PORTAL_ACTION} color="bg-sky-600" selected={selected} outputCount={2}>
     <p className="truncate"><b>{(data as any).action || 'mensalidades'}</b></p>
     <div className="mt-1 flex gap-2 text-[10px]">
       <span className="rounded bg-green-100 px-1 text-green-700">sucesso ↓</span>

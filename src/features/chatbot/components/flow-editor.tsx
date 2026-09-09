@@ -54,6 +54,7 @@ function flowNodesToReactFlow(nodes: ChatbotNode[]): { nodes: Node[]; edges: Edg
             ? `output-${i}`
             : 'output-0',
         label: e.condition || undefined,
+        type: 'smoothstep',
         animated: true,
         style: { strokeWidth: 2 },
       });
@@ -96,7 +97,7 @@ export function FlowEditor({ flow }: FlowEditorProps) {
   const idCounter = useRef(100);
 
   const onConnect = useCallback(
-    (connection: Connection) => setEdges((eds) => addEdge({ ...connection, animated: true, style: { strokeWidth: 2 } }, eds)),
+    (connection: Connection) => setEdges((eds) => addEdge({ ...connection, type: 'smoothstep', animated: true, style: { strokeWidth: 2 } }, eds)),
     [setEdges],
   );
 

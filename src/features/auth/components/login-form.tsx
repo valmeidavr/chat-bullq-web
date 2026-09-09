@@ -103,13 +103,6 @@ export function LoginForm() {
           Entrar
         </button>
       </form>
-
-      <p className="text-center text-sm text-muted-foreground">
-        Não tem conta?{' '}
-        <Link href="/register" className="font-medium text-primary hover:underline">
-          Criar conta
-        </Link>
-      </p>
-    </div>
+</div>
   );
 }

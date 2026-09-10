@@ -433,23 +433,30 @@ export function NodePropertiesPanel({ node, twilioChannelId, onUpdate, onDelete,
                 <option value="consultas">Minhas consultas</option>
                 <option value="unidades">Listar unidades</option>
                 <option value="especialidades">Listar especialidades</option>
-                <option value="horarios">Listar horários livres</option>
+                <option value="horarios">Listar dias com horário livre</option>
+                <option value="horarios_dia">Listar horários de um dia</option>
                 <option value="agendar">Agendar consulta</option>
                 <option value="confirmar">Confirmar consulta</option>
                 <option value="cancelar">Cancelar consulta</option>
               </select>
               <p className="mt-1 text-[10px] text-zinc-400">Exige identidade confirmada (OTP). As regras (permissão, ECG, 48h/4h) são as mesmas do site.</p>
             </div>
-            {(data.action === 'especialidades' || data.action === 'horarios') && (
+            {(data.action === 'especialidades' || data.action === 'horarios' || data.action === 'horarios_dia') && (
               <div>
                 <label className={labelCls}>Variável da unidade</label>
                 <input className={inputCls} value={data.unidadeVar || 'unidadeId'} onChange={(e) => update('unidadeVar', e.target.value)} placeholder="unidadeId" />
               </div>
             )}
-            {data.action === 'horarios' && (
+            {(data.action === 'horarios' || data.action === 'horarios_dia') && (
               <div>
                 <label className={labelCls}>Variável da especialidade</label>
                 <input className={inputCls} value={data.especialidadeVar || 'especialidadeId'} onChange={(e) => update('especialidadeVar', e.target.value)} placeholder="especialidadeId" />
+              </div>
+            )}
+            {data.action === 'horarios_dia' && (
+              <div>
+                <label className={labelCls}>Variável do dia escolhido</label>
+                <input className={inputCls} value={data.diaVar || 'diaEscolhido'} onChange={(e) => update('diaVar', e.target.value)} placeholder="diaEscolhido" />
               </div>
             )}
             {data.action === 'agendar' && (
